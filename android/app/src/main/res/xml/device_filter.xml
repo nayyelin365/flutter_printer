@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Match all USB devices (printers) -->
+    <!-- You can add specific vendor/product IDs if needed -->
+    <usb-device />
+</resources>
