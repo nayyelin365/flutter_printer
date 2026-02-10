@@ -251,30 +251,10 @@ class TsplCommands {
     return cmd.getBytes();
   }
 
-  /// Create a simple product label
-  static Uint8List sampleProductLabel() {
-    final cmd = TsplCommands()
-        .size(50, 30) // 50mm x 30mm label
-        .gap(2)
-        .speed(4)
-        .density(8)
-        .direction(0)
-        .cls()
-        // Product name
-        .text(10, 10, '3', 0, 1, 1, 'Product Name')
-        // Price
-        .text(10, 50, '4', 0, 2, 2, '\$19.99')
-        // Barcode
-        .barcode128(10, 120, '1234567890123')
-        // SKU
-        .text(10, 200, '1', 0, 1, 1, 'SKU: ABC-123')
-        .print(1, 1);
-
-    return cmd.getBytes();
-  }
-
   /// Sushi California Roll label (1.75" x 12" = 44.45mm x 304.8mm)
   /// At 203 DPI: 355 x 2436 dots
+  /// NOTE: Many TSC printers have max label length ~100-200mm
+  /// This version uses 100mm sections printed as 3 separate labels
   static Uint8List sushiCaliforniaRollLabel({
     String productName = 'SUSHI - CALIFORNIA ROLL',
     String price = '\$9.99',
@@ -284,17 +264,21 @@ class TsplCommands {
     String barcode = '096859',
     int calories = 250,
   }) {
+    // Using 100mm max height to avoid printer buffer overflow
+    // Original was 304.8mm (12") but most TSC printers max at ~100-200mm
     final cmd = TsplCommands()
-        .size(44.45, 304.8) // 1.75" x 12" in mm
+        .size(44.45, 100) // 1.75" x ~4" (100mm) - safer for printer buffer
         .gap(2)
         .speed(4)
         .density(10)
         .direction(0)
         .cls();
 
+    // At 203 DPI: 44.45mm = 355 dots width, 100mm = 800 dots height
+
     // ============ LEFT SECTION - Nutrition Facts (Rotated 90°) ============
     // Green background would need bitmap, using box outline instead
-    cmd.box(0, 0, 80, 2400, 2);
+    cmd.box(0, 0, 80, 780, 2);  // Reduced height for 100mm label
 
     // Nutrition Facts (rotated 90°)
     cmd.text(60, 40, '2', 90, 1, 1, 'Nutrition');
